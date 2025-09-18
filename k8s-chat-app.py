@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # # 1. Preamble and Imports
-import argparse
+# NO LONGER NEEDED: import argparse
 import json
 import shlex
 import subprocess
@@ -244,14 +244,12 @@ workflow.add_edge("report_issue", END)
 app = workflow.compile()
 
 
-# # 7. Example Invocation
+# # 7. Interactive CLI Main Loop
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Kubernetes AI agent that executes kubectl commands.")
-    parser.add_argument("query", type=str, help="The natural language query for the Kubernetes cluster.")
-    args = parser.parse_args()
+    print("Kubernetes AI Agent Initialized ✨")
+    print("Enter your query below. Type 'exit' or 'quit' to end the session.")
 
-    print("Kubernetes AI Agent Initialized ✨\n")
-
+    # Create critic rules file if it doesn't exist
     rules_path = Path("critic_rules.txt")
     if not rules_path.exists():
         rules_content = (
@@ -266,12 +264,32 @@ if __name__ == "__main__":
             f.write(rules_content)
         print("✅ `critic_rules.txt` has been created.")
 
-    user_query = args.query
+    # Start the interactive loop
+    try:
+        while True:
+            # Get user input from the prompt
+            user_query = input("\nk8s-agent> ")
 
-    print(f"\n🚀 Starting agent for query: '{user_query}'\n" + "-" * 40)
+            # Check for exit commands
+            if user_query.lower() in ["exit", "quit"]:
+                break
 
-    inputs = {"user_prompt": user_query}
-    final_state = app.invoke(inputs)
+            # Skip empty input
+            if not user_query.strip():
+                continue
 
-    print("-" * 40 + "\n🏁 Final Response:\n")
-    print(final_state.get("final_summary", "No summary was generated."))
+            print("\n🚀 Processing your query...")
+            print("-" * 40)
+            
+            # Invoke the graph with the user's query
+            inputs = {"user_prompt": user_query}
+            final_state = app.invoke(inputs)
+
+            print("-" * 40)
+            print("🏁 Final Response:\n")
+            print(final_state.get("final_summary", "No summary was generated."))
+
+    except KeyboardInterrupt:
+        print("\nExiting agent...")
+    
+    print("Goodbye! 👋")
