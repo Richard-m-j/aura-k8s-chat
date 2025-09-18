@@ -1,0 +1,4 @@
+1. The command must start with 'kubectl'.
+2. The allowed actions are 'get', 'describe', and 'logs'. Any other action (like 'delete', 'apply', 'exec', 'edit', 'create', 'rollout') is strictly forbidden.
+3. The command must include the '-o json' output flag to ensure the output is structured and machine-readable.
+4. The command must not contain any shell operators like ';', '&&', '||', '|', '>', '<', or '`'. It must be a single, standalone command.
