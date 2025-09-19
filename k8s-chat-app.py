@@ -20,7 +20,7 @@ from langgraph.graph import StateGraph, END
 try:
     llm = ChatBedrock(
         model_id="anthropic.claude-3-haiku-20240307-v1:0",
-        client=boto3.client(service_name="bedrock-runtime"),
+        client=boto3.client(service_name="bedrock-runtime", region_name="us-east-1"),
         model_kwargs={"temperature": 0.1},
     )
 except Exception as e:
