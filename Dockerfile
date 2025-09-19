@@ -5,13 +5,10 @@ FROM python:3.11-slim-bookworm AS builder
 
 # Combine all build-time operations into a single RUN command to create one layer.
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends tini curl unzip gnupg python3-venv && \
+    apt-get install -y --no-install-recommends tini curl gnupg python3-venv && \
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    ./aws/install && \
-    rm -rf kubectl awscliv2.zip aws /var/lib/apt/lists/*
+    rm -rf kubectl /var/lib/apt/lists/*
 
 # Create and populate the virtual environment.
 COPY requirements.txt .
