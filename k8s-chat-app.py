@@ -1,8 +1,10 @@
+# k8s-chat-app.py
+
 #!/usr/bin/env python3
 
 # # 1. Preamble and Imports
-# NO LONGER NEEDED: import argparse
 import json
+import os  # <-- Add this import
 import shlex
 import subprocess
 import sys
