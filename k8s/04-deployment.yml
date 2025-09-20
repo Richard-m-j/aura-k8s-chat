@@ -17,12 +17,20 @@ spec:
       containers:
       - name: k8s-agent
         image: "ghcr.io/richard-m-j/aura-k8s-chat:main"
-        # This command starts your application
-        command: ["python3", "k8s-chat-app.py"]
-        stdin: true
-        tty: true
         ports:
         - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
         env:
         - name: AWS_REGION
           value: "us-east-1"
