@@ -248,6 +248,21 @@ workflow.add_edge("report_issue", END)
 
 app_langchain = workflow.compile()
 
+# Create critic rules file if it doesn't exist at the module level
+rules_path = Path("critic_rules.txt")
+if not rules_path.exists():
+    rules_content = (
+        "1. The command must start with 'kubectl'.\n"
+        "2. The allowed actions are 'get', 'describe', and 'logs'. Any other action "
+        "(like 'delete', 'apply', 'exec', 'edit', 'create', 'rollout') is strictly forbidden.\n"
+        "3. For commands that support it (like 'get' and 'describe'), the command should include the '-o json' output flag.\n"
+        "4. The command must not contain any shell operators like ';', '&&', '||', '|', '>', '<', or '`'. "
+        "It must be a single, standalone command.\n"
+    )
+    with open(rules_path, "w") as f:
+        f.write(rules_content)
+    print("✅ `critic_rules.txt` has been created.")
+
 # # 7. FastAPI App
 app = FastAPI()
 
@@ -263,21 +278,3 @@ async def invoke(request: InvokeRequest):
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Kubernetes AI Agent API"}
-
-# Create critic rules file if it doesn't exist
-rules_path = Path("critic_rules.txt")
-if not rules_path.exists():
-    rules_content = (
-        "1. The command must start with 'kubectl'.\n"
-        "2. The allowed actions are 'get', 'describe', and 'logs'. Any other action "
-        "(like 'delete', 'apply', 'exec', 'edit', 'create', 'rollout') is strictly forbidden.\n"
-        "3. For commands that support it (like 'get' and 'describe'), the command should include the '-o json' output flag.\n"
-        "4. The command must not contain any shell operators like ';', '&&', '||', '|', '>', '<', or '`'. "
-        "It must be a single, standalone command.\n"
-    )
-    with open(rules_path, "w") as f:
-        f.write(rules_content)
-    print("✅ `critic_rules.txt` has been created.")
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
