@@ -17,6 +17,10 @@ spec:
       containers:
       - name: k8s-agent
         image: "ghcr.io/richard-m-j/aura-k8s-chat:main"
+        # This command starts your application
+        command: ["python3", "k8s-chat-app.py"]
+        stdin: true
+        tty: true
         ports:
         - containerPort: 8000
         env:
