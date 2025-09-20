@@ -50,8 +50,7 @@ spec:
       serviceAccountName: k8s-agent-sa
       containers:
       - name: k8s-agent
-        # IMPORTANT: Replace this with the actual image you pushed to your container registry.
-        image: "ghcr.io/your-github-username/your-repo-name:main"
+        image: "ghcr.io/richard-m-j/aura-k8s-chat:main"
         # These are crucial for an interactive session.
         stdin: true
         tty: true
