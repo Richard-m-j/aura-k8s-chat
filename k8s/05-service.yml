@@ -1,0 +1,12 @@
+# 05-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-agent
+spec:
+  selector:
+    app: k8s-agent
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000

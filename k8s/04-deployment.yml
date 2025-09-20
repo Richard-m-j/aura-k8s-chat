@@ -1,0 +1,49 @@
+# 04-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-agent-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-agent
+  template:
+    metadata:
+      labels:
+        app: k8s-agent
+    spec:
+      serviceAccountName: k8s-agent-sa
+      containers:
+      - name: k8s-agent
+        image: "ghcr.io/richard-m-j/aura-k8s-chat:main"
+        ports:
+        - containerPort: 8000
+        env:
+        - name: AWS_REGION
+          value: "us-east-1"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: AWS_SECRET_ACCESS_KEY
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        volumeMounts:
+        - name: critic-rules-volume
+          mountPath: /app/critic_rules.txt
+          subPath: critic_rules.txt
+      volumes:
+      - name: critic-rules-volume
+        configMap:
+          name: k8s-agent-critic-rules

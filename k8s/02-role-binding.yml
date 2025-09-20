@@ -1,0 +1,12 @@
+# 02-role-binding.yml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: k8s-agent-pod-reader-binding
+subjects:
+- kind: ServiceAccount
+  name: k8s-agent-sa
+roleRef:
+  kind: Role
+  name: pod-reader-role
+  apiGroup: rbac.authorization.k8s.io
