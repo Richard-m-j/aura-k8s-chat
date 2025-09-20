@@ -4,7 +4,7 @@
 
 # # 1. Preamble and Imports
 import json
-import os  # <-- Add this import
+import os
 import shlex
 import subprocess
 import sys
@@ -12,9 +12,12 @@ from pathlib import Path
 from typing import TypedDict, Dict, Any
 
 import boto3
+from fastapi import FastAPI
 from langchain_aws import ChatBedrock
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, END
+from pydantic import BaseModel
+import uvicorn
 
 # # 2. AWS Bedrock LLM Client
 try:
@@ -243,55 +246,38 @@ workflow.add_edge("execute_command", "summarize_results")
 workflow.add_edge("summarize_results", END)
 workflow.add_edge("report_issue", END)
 
-app = workflow.compile()
+app_langchain = workflow.compile()
 
+# # 7. FastAPI App
+app = FastAPI()
 
-# # 7. Interactive CLI Main Loop
+class InvokeRequest(BaseModel):
+    user_prompt: str
+
+@app.post("/invoke")
+async def invoke(request: InvokeRequest):
+    inputs = {"user_prompt": request.user_prompt}
+    final_state = app_langchain.invoke(inputs)
+    return {"response": final_state.get("final_summary", "No summary was generated.")}
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Kubernetes AI Agent API"}
+
+# Create critic rules file if it doesn't exist
+rules_path = Path("critic_rules.txt")
+if not rules_path.exists():
+    rules_content = (
+        "1. The command must start with 'kubectl'.\n"
+        "2. The allowed actions are 'get', 'describe', and 'logs'. Any other action "
+        "(like 'delete', 'apply', 'exec', 'edit', 'create', 'rollout') is strictly forbidden.\n"
+        "3. For commands that support it (like 'get' and 'describe'), the command should include the '-o json' output flag.\n"
+        "4. The command must not contain any shell operators like ';', '&&', '||', '|', '>', '<', or '`'. "
+        "It must be a single, standalone command.\n"
+    )
+    with open(rules_path, "w") as f:
+        f.write(rules_content)
+    print("✅ `critic_rules.txt` has been created.")
+
 if __name__ == "__main__":
-    print("Kubernetes AI Agent Initialized ✨")
-    print("Enter your query below. Type 'exit' or 'quit' to end the session.")
-
-    # Create critic rules file if it doesn't exist
-    rules_path = Path("critic_rules.txt")
-    if not rules_path.exists():
-        rules_content = (
-            "1. The command must start with 'kubectl'.\n"
-            "2. The allowed actions are 'get', 'describe', and 'logs'. Any other action "
-            "(like 'delete', 'apply', 'exec', 'edit', 'create', 'rollout') is strictly forbidden.\n"
-            "3. For commands that support it (like 'get' and 'describe'), the command should include the '-o json' output flag.\n"
-            "4. The command must not contain any shell operators like ';', '&&', '||', '|', '>', '<', or '`'. "
-            "It must be a single, standalone command.\n"
-        )
-        with open(rules_path, "w") as f:
-            f.write(rules_content)
-        print("✅ `critic_rules.txt` has been created.")
-
-    # Start the interactive loop
-    try:
-        while True:
-            # Get user input from the prompt
-            user_query = input("\nk8s-agent> ")
-
-            # Check for exit commands
-            if user_query.lower() in ["exit", "quit"]:
-                break
-
-            # Skip empty input
-            if not user_query.strip():
-                continue
-
-            print("\n🚀 Processing your query...")
-            print("-" * 40)
-            
-            # Invoke the graph with the user's query
-            inputs = {"user_prompt": user_query}
-            final_state = app.invoke(inputs)
-
-            print("-" * 40)
-            print("🏁 Final Response:\n")
-            print(final_state.get("final_summary", "No summary was generated."))
-
-    except KeyboardInterrupt:
-        print("\nExiting agent...")
-    
-    print("Goodbye! 👋")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

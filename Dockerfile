@@ -16,7 +16,6 @@ RUN apt-get update && \
 
 # Copy only the requirements file first to leverage the build cache
 COPY requirements.txt .
-
 # Create and populate the virtual environment in a single RUN layer
 RUN python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --no-cache-dir --upgrade pip && \
@@ -39,7 +38,8 @@ COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /usr/local/bin/kubectl /usr/local/bin/kubectl
 COPY --from=builder /usr/bin/tini /usr/bin/tini
 
-# Set the working directory and give ownership to the appuser
+# Set the working
+# directory and give ownership to the appuser
 WORKDIR /app
 RUN chown appuser:appuser /app
 
@@ -52,5 +52,8 @@ COPY . .
 # Set tini as the entrypoint for proper signal handling
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-# Default command to keep the container running
-CMD ["tail", "-f", "/dev/null"]
+# Expose the port the app runs on
+EXPOSE 8000
+
+# Command to run the application
+CMD ["uvicorn", "k8s-chat-app:app", "--host", "0.0.0.0", "--port", "8000"]
