@@ -9,7 +9,7 @@ spec:
     kind: Deployment
     name: k8s-agent-deployment
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 1
   metrics:
   - type: Resource
     resource:
