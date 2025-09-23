@@ -48,7 +48,7 @@ spec:
               key: AWS_SECRET_ACCESS_KEY
         resources:
           requests:
-            cpu: "100m"
+            cpu: "50m"
             memory: "256Mi"
           limits:
             cpu: "256m"
