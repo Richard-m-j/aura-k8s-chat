@@ -56,4 +56,7 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 EXPOSE 8000
 
 # Command to run the application using Gunicorn as a process manager
-CMD ["/opt/venv/bin/gunicorn", "-k", "uvicorn.workers.UvicornWorker", "k8s-chat-app:app", "--host", "0.0.0.0", "--port", "8000"]
+# CMD ["/opt/venv/bin/gunicorn", "-k", "uvicorn.workers.UvicornWorker", "k8s-chat-app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# Add this line for debugging
+CMD ["tail", "-f", "/dev/null"]
