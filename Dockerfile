@@ -56,4 +56,4 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 EXPOSE 8000
 
 # CORRECTED FINAL COMMAND
-CMD ["/opt/venv/bin/gunicorn", "-k", "uvicorn.workers.UvicornWorker", "k8s-chat-app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/opt/venv/bin/gunicorn", "-k", "uvicorn.workers.UvicornWorker", "k8s-chat-app:app", "--bind", "0.0.0.0:8000"]
