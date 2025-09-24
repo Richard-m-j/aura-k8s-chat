@@ -16,7 +16,7 @@ spec:
       serviceAccountName: k8s-agent-sa
       containers:
       - name: k8s-agent
-        image: "ghcr.io/richard-m-j/aura-k8s-chat:main"
+        image: ghcr.io/richard-m-j/aura-k8s-chat:af28943
         ports:
         - containerPort: 8000
         readinessProbe:
