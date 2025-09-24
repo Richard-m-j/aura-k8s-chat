@@ -4,3 +4,4 @@ boto3
 langchain-core
 fastapi
 uvicorn[standard]
+gunicorn
